@@ -7,6 +7,7 @@
       - The service account needs to have the following roles
          - ```BigQuery Data Editor```
          - ```BigQuery Job User```
+
    2. Create a key for the created service account which will be needed to run a bigquery job from DBT running on a GCE instance.
 
 - Edit a service account for GCE which is automatically created when you create the GCE instance. 
@@ -16,9 +17,11 @@
 ## 2. Create a GCE instance
 
 1. Enable GCE(Compute Engine) API if not
+
 2. Create a new instance
    - Need to set "Cloud API access scopes" to access bigquery from GCE
      - Set "Enable" for BigQuery in Cloud API access scopes.
+
 3. Setup DBT environment
 
     ```[bash]
@@ -49,7 +52,7 @@
     #     job_execution_timeout_seconds: 600
     #     job_retries: 1
     #     keyfile: ~/dbt_pj/service_account_keys/bigquery_crud.json
-    #     location: US
+    #     location: us-central1
     #     method: service-account
     #     priority: interactive
     #     project: <project_id>
@@ -60,24 +63,22 @@
 
 ### 2-1. Run DBT command from shell script
 
-1. Put dbt_debug.sh file into the GCE instance from local.
-   - Upload the dbt_debug.sh file to Cloud Storage (GCS) via GCP Console or gcloud command.
-     - Copy the file from GCS to GCE
+1. Upload the following files to GCS
+   - ```dbt-bigquery-cloud-composer-tutorial/dbt_master/dbt_debug.sh```
+   - ```dbt-bigquery-cloud-composer-tutorial/dbt_master/dbt_run.sh```
 
-        ```[bash]
-        # Example, run the command below from dbt-master instance.
-        gsutil cp gs://dbt-bigquery-tutorial/dbt_debug.sh ~/dbt_pj/test/
-        ```
+2. Copy the dbt_debug.sh and dbt_run.sh files into the GCE instance from GCS bucket.
 
-2. Execute the dbt_debug.sh
-
-    ```[bash]
-    sh ~/dbt_pj/test/dbt_debug.sh 
-    ```
+   ```[bash]
+   # Example, run the command below from dbt-master instance.
+   gsutil cp gs://dbt-bigquery-tutorial/dbt_debug.sh ~/dbt_pj/test/
+   gsutil cp gs://dbt-bigquery-tutorial/dbt_run.sh ~/dbt_pj/test/
+   ```
 
 ## 3. Set up Bigquery
 
 1. Enable Bigquery API if not
+
 2. Create a dataset from terminal from the GCE instance or local.
 
     ```[bash]
@@ -93,75 +94,32 @@
 
     - If you got this error, please check the link
       - "BigQuery error in mk operation: Insufficient Permission"
-      - https://groups.google.com/g/gce-discussion/c/KowRiqKyhyQ?pli=1
+      - <https://groups.google.com/g/gce-discussion/c/KowRiqKyhyQ?pli=1>
 
-## 4. Check DBT configuration
+## 4. Check if DBT runs properly
 
 1. Login to the GCE instance
-2. Move to the dbt project folder
+
+2. Execute the dbt_debug.sh and dbt_run.sh
 
     ```[bash]
-    cd ~/dbt_pj/sample_pj
-    ```
-
-3. Run the following command.
-
-    ```[bash]
-    (venv) $ dbt debug
-    08:19:14  Running with dbt=1.7.4
-    08:19:14  dbt version: 1.7.4
-    08:19:14  python version: 3.9.2
-    08:19:14  python path: ~/venv/bin/python3
-    08:19:14  os info: Linux-5.10.0-27-cloud-amd64-x86_64-with-glibc2.31
-    08:19:15  Using profiles dir at ~/.dbt
-    08:19:15  Using profiles.yml file at ~/.dbt/profiles.yml
-    08:19:15  Using dbt_project.yml file at ~/dbt_pj/sample_pj/dbt_project.yml
-    08:19:15  adapter type: bigquery
-    08:19:15  adapter version: 1.7.2
-    08:19:15  Configuration:
-    08:19:15    profiles.yml file [OK found and valid]
-    08:19:15    dbt_project.yml file [OK found and valid]
-    08:19:15  Required dependencies:
-    08:19:16   - git [OK found]
-
-    08:19:16  Connection:
-    08:19:16    method: service-account
-    08:19:16    database: <project_id>
-    08:19:16    execution_project: <project_id>
-    08:19:16    schema: dbt_test
-    08:19:16    location: US
-    08:19:16    priority: interactive
-    08:19:16    maximum_bytes_billed: None
-    08:19:16    impersonate_service_account: None
-    08:19:16    job_retry_deadline_seconds: None
-    08:19:16    job_retries: 1
-    08:19:16    job_creation_timeout_seconds: None
-    08:19:16    job_execution_timeout_seconds: 600
-    08:19:16    keyfile: ~/dbt_pj/service_account_keys/bigquery_crud.json
-    08:19:16    timeout_seconds: 600
-    08:19:16    refresh_token: None
-    08:19:16    client_id: None
-    08:19:16    token_uri: None
-    08:19:16    dataproc_region: None
-    08:19:16    dataproc_cluster_name: None
-    08:19:16    gcs_bucket: None
-    08:19:16    dataproc_batch: None
-    08:19:16  Registered adapter: bigquery=1.7.2
-    08:19:17    Connection test: [OK connection ok]
-
-    08:19:17  All checks passed!
+    sh ~/dbt_pj/test/dbt_debug.sh
+    sh ~/dbt_pj/test/dbt_run.sh
     ```
 
 ## 5. Set up Composer
 
 1. Enable Cloud Composer API if not
+
 2. Add role to the service account created when you created the GCE instance to create a composer.
    - Target service account name
      - ```<random_id>-compute@developer.gserviceaccount.com```
    - Role name
      - ```Cloud Composer v2 API Service Agent Extension```
+
 3. Create composer environment
    - Choose "Composer 2". ("Composer 1" is also okay)
+
 4. Put the dag file (dbt_debug.py) to the dag folder on GCS.
    - Open the Dog folder on Cloud Storage
      - The link of the Cloud Storage can be found from composer console.
@@ -199,10 +157,10 @@
 
       Created the "id_rsa_composer" and "id_rsa_composer.pub" keys now.
 
-
    - Create a new folder in the dags folder to store the ssh private key.
 
         ```[txt]
+        # Create the following folder from GCS console.
         gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/ssh_config
         ```
 
@@ -215,7 +173,9 @@
 ### 5-1. Run the DAG (dbt_debug.py) from Airflow web UI
 
 1. Open the Airflow web UI from the Composer console browser.
+
 2. Click "Airflow webserver" on the console to open the Airflow web UI
+
 3. Run the new dag, which the dag name is "run_dbt_by_ssh_operator"
 
    > NOTE: If the dag file updated in the previous is successfully uploaded to the specific dag folder, the dag name must be displayed. If it's not, try to upload the dag file again to the correct dag folder.
