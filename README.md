@@ -1,33 +1,24 @@
 # How to setup Bigquery, Composer and DBT on GCP
 
-## Set up service accounts
+## 1. Set up service accounts
 
 - Create a new service account for Bigquery
+   1. In IAM page, create a service account to run bigquery jobs from GCE instance.
+      - The service account needs to have the following roles
+         - ```BigQuery Data Editor```
+         - ```BigQuery Job User```
+   2. Create a key for the created service account which will be needed to run a bigquery job from DBT running on a GCE instance.
 
-    ```[bash]
-    # 1. In IAM page, create a service account to run bigquery jobs from GCE instance.
-    #    The service account needs to have the following roles
-    #    -  BigQuery Data Editor
-    #    -  BigQuery Job User
-    #
-    # 2. Create a key for the created service account 
-    #    which will be needed to run a bigquery job from DBT running on a GCE instance.
-    ```
+- Edit a service account for GCE which is automatically created when you create the GCE instance. 
+  - In IAM page, edit the service account to have the following role. This is needed to create a dataset from this instance. This is not for the DBT tasks.
+    - ```BigQuery Data Editor```
 
-- Edit a service account for GCE which is automatically created when you create the GCE instance.
-
-    ```[bash]
-    # 1. In IAM page, edit the service account to have the following role.
-    #    This is needed to create a dataset from this instance. This is not for the DBT tasks.
-    #    -  BigQuery Data Editor
-    ```
-
-## Create a GCE instance
+## 2. Create a GCE instance
 
 1. Enable GCE(Compute Engine) API if not
-2. Create a instance
-   1. Need to set "Cloud API access scopes" to access bigquery from GCE
-      1. Set "Enable" for BigQuery in Cloud API access scopes.
+2. Create a new instance
+   - Need to set "Cloud API access scopes" to access bigquery from GCE
+     - Set "Enable" for BigQuery in Cloud API access scopes.
 3. Setup DBT environment
 
     ```[bash]
@@ -67,11 +58,11 @@
     # target: dev
     ```
 
-### Run DBT command from shell script
+### 2-1. Run DBT command from shell script
 
 1. Put dbt_debug.sh file into the GCE instance from local.
-   1. Upload the dbt_debug.sh file to Cloud Storage (GCS) via GCP Console or gcloud command.
-   2. Copy the file from GCS to GCE
+   - Upload the dbt_debug.sh file to Cloud Storage (GCS) via GCP Console or gcloud command.
+     - Copy the file from GCS to GCE
 
         ```[bash]
         # Example, run the command below from dbt-master instance.
@@ -84,7 +75,7 @@
     sh ~/dbt_pj/test/dbt_debug.sh 
     ```
 
-## Set up Bigquery
+## 3. Set up Bigquery
 
 1. Enable Bigquery API if not
 2. Create a dataset from terminal from the GCE instance or local.
@@ -104,7 +95,7 @@
       - "BigQuery error in mk operation: Insufficient Permission"
       - https://groups.google.com/g/gce-discussion/c/KowRiqKyhyQ?pli=1
 
-## Check DBT configuration
+## 4. Check DBT configuration
 
 1. Login to the GCE instance
 2. Move to the dbt project folder
@@ -161,73 +152,73 @@
     08:19:17  All checks passed!
     ```
 
-## Set up Composer
+## 5. Set up Composer
 
 1. Enable Cloud Composer API if not
 2. Add role to the service account created when you created the GCE instance to create a composer.
-   1. Target service account name: 
-      1. <random_id>-compute@developer.gserviceaccount.com
-   2. Role name: 
-      1. Cloud Composer v2 API Service Agent Extension
+   - Target service account name
+     - ```<random_id>-compute@developer.gserviceaccount.com```
+   - Role name
+     - ```Cloud Composer v2 API Service Agent Extension```
 3. Create composer environment
-   1. Choose "Composer 2". ("Composer 1" is also okay)
+   - Choose "Composer 2". ("Composer 1" is also okay)
 4. Put the dag file (dbt_debug.py) to the dag folder on GCS.
-   1. Open the Dog folder on Cloud Storage
-      1. The link of the Cloud Storage can be found from composer console.
-   2. From the Cloud Storage web UI, upload the dag (dbt_debug.py) to the dag folder.
-      1. In my case, the file path is;
+   - Open the Dog folder on Cloud Storage
+     - The link of the Cloud Storage can be found from composer console.
+   - From the Cloud Storage web UI, upload the dag (dbt_debug.py) to the dag folder.
+     - In my case, the file path is;
 
-            ```[txt]
-            gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/dbt_debug.py
-            ```
+         ```[txt]
+         gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/dbt_debug.py
+         ```
 
-            The initial dag file (airflow_monitoring.py) should be in the same folder.
+         The initial dag file (airflow_monitoring.py) should be in the same folder.
 
-            ```[txt]
-            gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/airflow_monitoring.py
-            ```
+         ```[txt]
+         gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/airflow_monitoring.py
+         ```
 
 5. Create a SSH key to use SSHOperator to run DBT task from the composer. Since we cannot get a public key in the cloud composer directly, a new ssh key needs to be created in the GCE instance where the composer wants to access and copy the private key to a folder where the composer can access.
-   1. Create a new SSH key in GCE instance (dbt-master)
+   - Create a new SSH key in GCE instance (dbt-master)
 
-        ```[bash]
-        # Run the command from GCE instance
-        # The key name should not be "id_ras", I'd recommend it should be like "id_rsa_composer" since this key is not for the GCE instance.
+      ```[bash]
+      # Run the command from GCE instance
+      # The key name should not be "id_ras", I'd recommend it should be like "id_rsa_composer" since this key is not for the GCE instance.
 
-        ssh-keygen
+      ssh-keygen
 
-        ls -al ~/.ssh
-        # output
-        drwx------  2 dbt_user dbt_user 4096 Jan 18 01:04 .
-        drwxr-xr-x 12 dbt_user dbt_user 4096 Jan 18 01:43 ..
-        -rw-------  1 dbt_user dbt_user 2655 Jan 18 01:04 authorized_keys
-        -rw-------  1 dbt_user dbt_user 2622 Jan 17 06:13 id_rsa_composer
-        -rw-r--r--  1 dbt_user dbt_user  580 Jan 17 06:13 id_rsa_composer.pub
-        -rw-r--r--  1 dbt_user dbt_user  444 Jan 17 03:46 known_hosts
-        ```
+      ls -al ~/.ssh
+      # output
+      drwx------  2 dbt_user dbt_user 4096 Jan 18 01:04 .
+      drwxr-xr-x 12 dbt_user dbt_user 4096 Jan 18 01:43 ..
+      -rw-------  1 dbt_user dbt_user 2655 Jan 18 01:04 authorized_keys
+      -rw-------  1 dbt_user dbt_user 2622 Jan 17 06:13 id_rsa_composer
+      -rw-r--r--  1 dbt_user dbt_user  580 Jan 17 06:13 id_rsa_composer.pub
+      -rw-r--r--  1 dbt_user dbt_user  444 Jan 17 03:46 known_hosts
+      ```
 
-        Created the "id_rsa_composer" and "id_rsa_composer.pub" keys now.
+      Created the "id_rsa_composer" and "id_rsa_composer.pub" keys now.
 
 
-   2. Create a new folder in the dags folder to store the ssh private key.
+   - Create a new folder in the dags folder to store the ssh private key.
 
         ```[txt]
         gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/ssh_config
         ```
 
-   3. Copy the private key to a folder under the dag folder mounted to the composer.
+   - Copy the private key to a folder under the dag folder mounted to the composer.
 
         ```[bash]
         gsutil cp ~/.ssh/id_rsa_composer gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/ssh_config
         ```
 
-### Run the DAG (dbt_debug.py) from Airflow web UI
+### 5-1. Run the DAG (dbt_debug.py) from Airflow web UI
 
 1. Open the Airflow web UI from the Composer console browser.
 2. Click "Airflow webserver" on the console to open the Airflow web UI
 3. Run the new dag, which the dag name is "run_dbt_by_ssh_operator"
 
-   NOTE: If the dag file updated in the previous is successfully uploaded to the specific dag folder, the dag name must be displayed. If it's not, try to upload the dag file again to the correct dag folder.
+   > NOTE: If the dag file updated in the previous is successfully uploaded to the specific dag folder, the dag name must be displayed. If it's not, try to upload the dag file again to the correct dag folder.
 
 ## Note
 
