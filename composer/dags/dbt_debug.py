@@ -27,8 +27,8 @@ with DAG(
     """
     Method-1: SSHOperator & ComputeEngineSSHHook
     """
-    run_dbt_by_ComputeEngineSSHHook = SSHOperator(
-        task_id="run_dbt_by_ComputeEngineSSHHook",
+    dbt_debug_by_ComputeEngineSSHHook = SSHOperator(
+        task_id="dbt_debug_by_ComputeEngineSSHHook",
         ssh_hook=ComputeEngineSSHHook(
             instance_name="dbt-master",
             zone="<zone>",  # Replace to yours
@@ -49,18 +49,18 @@ with DAG(
         In this case, the file is stored in '/home/airflow/gcs/dags/ssh_config/id_rsa_composer', where the dags folder is located on cloud storage.
         Additionally, you need to register the public key into the authorized_keys on GCE instance(dbt-master).
     """
-    run_dbt_by_SSHHook = SSHOperator(
-        task_id="run_dbt_by_SSHHook",
+    dbt_run_by_SSHHook = SSHOperator(
+        task_id="dbt_run_by_SSHHook",
         ssh_hook=SSHHook(
             remote_host="<dbt-master_host>", # Replace to yours
             username="<username>", # Replace to yours
             key_file="/home/airflow/gcs/dags/ssh_config/id_rsa_composer",
             port=22,
         ),
-        command=" sh ~/dbt_pj/test/dbt_debug.sh ",
+        command=" sh ~/dbt_pj/test/dbt_run.sh ",
         dag=dag,
     )
 
     dag_end = DummyOperator(task_id="dag_end")
 
-    (dag_start >> run_dbt_by_ComputeEngineSSHHook >> run_dbt_by_SSHHook >> dag_end)
+    (dag_start >> dbt_debug_by_ComputeEngineSSHHook >> dbt_run_by_SSHHook >> dag_end)
