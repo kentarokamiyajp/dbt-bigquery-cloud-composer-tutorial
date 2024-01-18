@@ -8,19 +8,30 @@
          - ```BigQuery Data Editor```
          - ```BigQuery Job User```
 
-   2. Create a key for the created service account which will be needed to run a bigquery job from DBT running on a GCE instance.
+   2. Create a key for the created service account which will be needed to run a bigquery job from DBT running on a GCE instance (will be used in the next step 2).
+      - How to create a key
+         1. Go to "IAM & Admin"
+         2. Go to "Service Accounts"
+         3. Click "Actions" of the target service account
+         4. Click "Manage Keys" from the "Actions"
+         5. Click "Add key" and download the created json file.
 
-- Edit a service account for GCE which is automatically created when you create the GCE instance. 
-  - In IAM page, edit the service account to have the following role. This is needed to create a dataset from this instance. This is not for the DBT tasks.
+- Edit a service account for GCE which is automatically created when you create the GCE instance. (This will be done after creating a GCE instance)
+  - Target service account name
+    - ```<random_id>-compute@developer.gserviceaccount.com```
+  - Edit the service account to have the following role.
     - ```BigQuery Data Editor```
+      - This is needed to create a dataset from this instance.
+    - ```Cloud Composer v2 API Service Agent Extension```
+      - This is needed to build a Cloud Composer 2
 
 ## 2. Create a GCE instance
 
 1. Enable GCE(Compute Engine) API if not
 
 2. Create a new instance
-   - Need to set "Cloud API access scopes" to access bigquery from GCE
-     - Set "Enable" for BigQuery in Cloud API access scopes.
+   - By editing the created instance, need to set "Enable" for **Bigquery** in the **Cloud API access scopes** in the "Security and access" section.
+     - This needs to access bigquery dataset from a GCE instance.
 
 3. Setup DBT environment
 
@@ -33,19 +44,19 @@
     pip install dbt-core
     pip install dbt-bigquery
 
-    # Copy the key to a folder on the GCE instance.
+    # Put the key to a folder on the GCE instance.
     mkdir ~/service_account_keys
     nano ~/service_account_keys/bigquery_crud.json
 
     # Create a DBT project
     mkdir dbt_pj
     cd dbt_pj
-    dbt init sample_pj
+    dbt init test
 
     # Check the profile.yml
     cat ~/.dbt/profile.yml
 
-    # sample_pj:
+    # test:
     # outputs:
     #     dev:
     #     dataset: dbt_test
@@ -98,7 +109,7 @@
 
 ## 4. Run DBT tasks from the GCE instance
 
-1. Login to the GCE instance
+1. SSH to the GCE instance
 
 2. Execute the dbt_debug.sh and dbt_run.sh
 
@@ -111,7 +122,7 @@
 
 1. Enable Cloud Composer API if not
 
-2. Add role to the service account created when you created the GCE instance to create a composer.
+2. Add role to the service account created when you created the GCE instance to create a composer. (might be done in the 1st step)
    - Target service account name
      - ```<random_id>-compute@developer.gserviceaccount.com```
    - Role name
@@ -120,14 +131,14 @@
 3. Create composer environment
    - Choose "Composer 2". ("Composer 1" is also okay)
 
-4. Put the dag file (dbt_debug.py) to the dag folder on GCS.
+4. Put the dag file (dbt_run.py) to the dag folder on GCS.
    - Open the Dog folder on Cloud Storage
      - The link of the Cloud Storage can be found from composer console.
-   - From the Cloud Storage web UI, upload the dag (dbt_debug.py) to the dag folder.
+   - From the Cloud Storage web UI, upload the dag (dbt_run.py) to the dag folder.
      - In my case, the file path is;
 
          ```[txt]
-         gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/dbt_debug.py
+         gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/dbt_run.py
          ```
 
          The initial dag file (airflow_monitoring.py) should be in the same folder.
@@ -137,7 +148,9 @@
          ```
 
 5. Create a SSH key to use SSHOperator to run DBT task from the composer. Since we cannot get a public key in the cloud composer directly, a new ssh key needs to be created in the GCE instance where the composer wants to access and copy the private key to a folder where the composer can access.
-   - Create a new SSH key in GCE instance (dbt-master)
+   1. SSH to the GCE instance (dbt-master)
+
+   2. In the GCE instance, create a new SSH key
 
       ```[bash]
       # Run the command from GCE instance
@@ -157,14 +170,14 @@
 
       Created the "id_rsa_composer" and "id_rsa_composer.pub" keys now.
 
-   - Create a new folder in the dags folder to store the ssh private key.
+   3. In GCS, create a new folder in the dags folder to store the ssh private key created in the GCE instance.
 
         ```[txt]
         # Create the following folder from GCS console.
         gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/ssh_config
         ```
 
-   - Copy the private key to a folder under the dag folder mounted to the composer.
+   4. By gsutil commnad, copy the private key to a folder under the dag folder mounted to the composer.
 
         ```[bash]
         gsutil cp ~/.ssh/id_rsa_composer gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/ssh_config
