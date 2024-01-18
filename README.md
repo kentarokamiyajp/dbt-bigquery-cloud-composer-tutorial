@@ -96,7 +96,7 @@
       - "BigQuery error in mk operation: Insufficient Permission"
       - <https://groups.google.com/g/gce-discussion/c/KowRiqKyhyQ?pli=1>
 
-## 4. Check if DBT runs properly
+## 4. Run DBT tasks from the GCE instance
 
 1. Login to the GCE instance
 
@@ -170,7 +170,7 @@
         gsutil cp ~/.ssh/id_rsa_composer gs://us-central1-my-composer-v1-4c3a9a53-bucket/dags/ssh_config
         ```
 
-### 5-1. Run the DAG (dbt_debug.py) from Airflow web UI
+### 5-1. Run the DAG (dbt_run.py) from Airflow web UI
 
 1. Open the Airflow web UI from the Composer console browser.
 
