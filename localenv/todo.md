@@ -32,7 +32,7 @@
       1. [materialized=table] [x]
          1. delete all -> insert -> delete (by macro)
             1. This case is not gonna happen !!!
-      2. [materialized=incremental] []
+      2. [materialized=incremental] [x]
          1. incremental_strategy: merge [x]
             1. Simple merge (update&insert)
                1. Set unique_key option
@@ -43,11 +43,18 @@
                   2. ```MERGE_TEST_2```
                2. Don't set unique_key option and use ```macro``` to delete data first.
                   1. ```MERGE_TEST_3```
-         2. incremental_strategy: insert_overwrite []
+         2. incremental_strategy: insert_overwrite [x]
             1. delete partition and insert partition (basically using merge SQL)
                1. ```INSERT_OVERWRITE_TEST_1```
             2. delete partition and copy partition (NOT merge SQL, but using ```bq cp``` command)
-   3. Update []
+               1. create table with only target data from tmp-source table (target partition date/hour/etc...)
+                  -> delete target partition from dest table (by bq command)
+                  -> copy target partition from tmp-source to dest (by bq command)
+                  -> drop tmp-source table
+               2. If data size in one partition is huge, this is recommended.
+               3. ```INSERT_OVERWRITE_TEST_2```
+   3. Update [x]
+      1. Use merge instead.
 4. Testings
    1. Column data types [x]
    2. Table exists [x]
