@@ -1,0 +1,44 @@
+tla:
+  outputs:
+    dev:
+      dataset: TRVANALYT_MART
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      keyfile: /home/dbtprj/auth/key.json
+      location: asia-northeast1
+      method: service-account
+      priority: interactive
+      project: dbt-etl
+      threads: 2
+      type: bigquery
+  target: dev
+
+tla_seed:
+  outputs:
+    dev:
+      dataset: TRVANALYT_RAW
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      keyfile: /home/dbtprj/auth/key.json
+      location: asia-northeast1
+      method: service-account
+      priority: interactive
+      project: dbt-etl
+      threads: 2
+      type: bigquery
+  target: dev
+
+ex_spdb:
+  outputs:
+    dev:
+      dataset: EX_SPDB_RAW
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      keyfile: /home/dbtprj/auth/key.json
+      location: asia-northeast1
+      method: service-account
+      priority: interactive
+      project: dbt-etl
+      threads: 2
+      type: bigquery
+  target: dev

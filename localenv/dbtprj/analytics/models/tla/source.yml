@@ -1,0 +1,50 @@
+version: 2
+
+sources:
+  - name: TLA__TRVANALYT_RAW # arbitrary source name (must be unique in a DBT project)
+    database: dbt-etl   # bigquery project-id
+    schema: TRVANALYT_RAW # bigquery dataset-name
+    tables:
+      - name: TLA__CRYPTO_CANDLES
+        tests:
+          - table_exists:
+              table_name: TLA__CRYPTO_CANDLES
+        columns:
+          - name: id
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: STRING
+          - name: low
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: STRING
+          - name: high
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: STRING
+          - name: open
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: STRING
+          - name: close
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: STRING
+          - name: volume
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: STRING
+          - name: dt
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: DATE
+      - name: TLA__CRYPTO_CANDLES_MINUTE_1
+      - name: TLA__CRYPTO_CANDLES_MINUTE_2
+      - name: TLA__CRYPTO_CANDLES_MINUTE_3

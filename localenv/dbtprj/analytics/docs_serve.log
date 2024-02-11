@@ -1,0 +1,25 @@
+nohup: ignoring input
+[0m08:40:28  Running with dbt=1.7.4
+[0m08:40:28  Encountered an error:
+[Errno 98] Address already in use
+[0m08:40:28  Traceback (most recent call last):
+  File "/home/venvs/dbt/lib/python3.9/site-packages/dbt/cli/requires.py", line 90, in wrapper
+    result, success = func(*args, **kwargs)
+  File "/home/venvs/dbt/lib/python3.9/site-packages/dbt/cli/requires.py", line 75, in wrapper
+    return func(*args, **kwargs)
+  File "/home/venvs/dbt/lib/python3.9/site-packages/dbt/cli/requires.py", line 168, in wrapper
+    return func(*args, **kwargs)
+  File "/home/venvs/dbt/lib/python3.9/site-packages/dbt/cli/requires.py", line 197, in wrapper
+    return func(*args, **kwargs)
+  File "/home/venvs/dbt/lib/python3.9/site-packages/dbt/cli/requires.py", line 244, in wrapper
+    return func(*args, **kwargs)
+  File "/home/venvs/dbt/lib/python3.9/site-packages/dbt/cli/main.py", line 324, in docs_serve
+    results = task.run()
+  File "/home/venvs/dbt/lib/python3.9/site-packages/dbt/task/serve.py", line 23, in run
+    with socketserver.TCPServer(("", port), SimpleHTTPRequestHandler) as httpd:
+  File "/usr/local/lib/python3.9/socketserver.py", line 452, in __init__
+    self.server_bind()
+  File "/usr/local/lib/python3.9/socketserver.py", line 466, in server_bind
+    self.socket.bind(self.server_address)
+OSError: [Errno 98] Address already in use
+
