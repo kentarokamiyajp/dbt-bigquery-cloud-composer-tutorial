@@ -29,11 +29,11 @@
          3. Before inserting to the final table, must test the table is expected by creating WRK table or something.
          4. ```CRYPTO_CANDLES```
    2. Delete&Insert, Merge []
-      1. [materialized=table] []
+      1. [materialized=table] [x]
          1. delete all -> insert -> delete (by macro)
             1. This case is not gonna happen !!!
       2. [materialized=incremental] []
-         1. incremental_strategy: merge []
+         1. incremental_strategy: merge [x]
             1. Simple merge (update&insert)
                1. Set unique_key option
                2. ```MERGE_TEST_1```
@@ -42,8 +42,11 @@
                   1. if we use pre_hook, it'll fail in the first run since the table doesn't exist at the time.
                   2. ```MERGE_TEST_2```
                2. Don't set unique_key option and use ```macro``` to delete data first.
-                  1. 
+                  1. ```MERGE_TEST_3```
          2. incremental_strategy: insert_overwrite []
+            1. delete partition and insert partition (basically using merge SQL)
+               1. ```INSERT_OVERWRITE_TEST_1```
+            2. delete partition and copy partition (NOT merge SQL, but using ```bq cp``` command)
    3. Update []
 4. Testings
    1. Column data types [x]
