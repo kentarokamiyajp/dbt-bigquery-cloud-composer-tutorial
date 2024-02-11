@@ -2,7 +2,7 @@ with candles_day as (
     select *  from {{ source('CMN__EX_SPDB_RAW','SPDB__CRYPTO_CANDLES') }}
 ),
 candles_minute as (
-    select *  from {{ source('TLA__TRVANALYT_RAW','TLA__CRYPTO_CANDLES_MINUTE') }}
+    select *  from {{ source('TLA__TRVANALYT_RAW','TLA__CRYPTO_CANDLES_MINUTE_1') }}
 ),
 final as (
     select
