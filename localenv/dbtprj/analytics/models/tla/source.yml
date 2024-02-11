@@ -45,3 +45,4 @@ sources:
               - dbt_expectations.expect_column_to_exist
               - dbt_expectations.expect_column_values_to_be_of_type:
                   column_type: DATE
+      - name: TLA__CRYPTO_CANDLES_MINUTE

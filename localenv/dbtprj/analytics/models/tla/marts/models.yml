@@ -1,0 +1,30 @@
+models:
+  - name: CRYPTO_CANDLES
+    config:
+      contract:
+        enforced: true
+    constraints:
+      - type: primary_key
+        columns: [id, dt]
+    tests:
+      - unique:
+            column_name: "id || '-' || dt"
+    columns:
+      - name: id
+        data_type: STRING
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+      - name: low
+        data_type: FLOAT64
+      - name: high
+        data_type: FLOAT64
+      - name: open
+        data_type: FLOAT64
+      - name: close
+        data_type: FLOAT64
+      - name: volume
+        data_type: FLOAT64
+      - name: dt
+        data_type: DATE

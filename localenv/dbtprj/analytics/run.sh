@@ -7,6 +7,7 @@ dbt test --profiles-dir . --target dev --profile tla --select "source:CMN__EX_SP
 
 # Create wrok tables
 dbt run --profiles-dir . --target dev --profile tla --select tla.wrk.WRK_TLA__CRYPTO_CANDLES
+dbt run --profiles-dir . --target dev --profile tla --select tla.wrk.WRK_CANDLES_DAY_MINUTE
 dbt run --profiles-dir . --target dev --profile tla --select tla.wrk.WRK_EX_SPDB__CRYPTO_CANDLES
 
 # Create mart tables

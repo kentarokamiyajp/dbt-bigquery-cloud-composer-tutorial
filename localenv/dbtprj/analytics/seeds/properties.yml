@@ -17,7 +17,7 @@ seeds:
       delimiter: ","
     tests:
       - unique:
-            column_name: "id || '-' || dt"
+          column_name: "id || '-' || dt"
     columns:
       - name: "id"
         description: "Symbol id for crypto currency such as BTC_USDT"
@@ -28,6 +28,47 @@ seeds:
           - not_null
       - name: "low"
         description: "lowest price over the interval"
+        quote: false
+        tests:
+          - not_null
+
+  - name: TLA__CRYPTO_CANDLES_MINUTE
+    description: "Source file for crypto candles minute from TLA"
+    docs:
+      show: true
+    config:
+      column_types:
+        id: STRING
+        low: FLOAT64
+        high: FLOAT64
+        open: FLOAT64
+        close: FLOAT64
+        amount: FLOAT64
+        quantity: FLOAT64
+        buytakeramount: FLOAT64
+        buytakerquantity: FLOAT64
+        tradecount: INT64
+        ts: INT64
+        weightedaverage: FLOAT64
+        interval_type: STRING
+        starttime: INT64
+        closetime: INT64
+        dt_create_utc: DATE
+        ts_create_utc: TIMESTAMP
+        ts_insert_utc: TIMESTAMP
+        year: INT64
+        month: INT64
+        day: INT64
+        hour: INT64
+      delimiter: ","
+    tests:
+      - unique:
+          column_name: "id || '-' || dt_create_utc || '-' || startTime || '-' || closeTime"
+    columns:
+      - name: "id"
+        description: "Symbol id for crypto currency such as BTC_USDT"
+        meta:
+          contains_pii: false
         quote: false
         tests:
           - not_null
@@ -48,7 +89,7 @@ seeds:
       delimiter: ","
     tests:
       - unique:
-            column_name: "id || '-' || dt"
+          column_name: "id || '-' || dt"
     columns:
       - name: "id"
         description: "Symbol id for crypto currency such as BTC_USDT"
