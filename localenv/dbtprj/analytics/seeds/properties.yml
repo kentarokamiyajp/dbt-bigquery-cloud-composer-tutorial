@@ -1,0 +1,60 @@
+version: 2
+
+seeds:
+  - name: TLA__CRYPTO_CANDLES
+    description: "Source file for crypto candles from TLA"
+    docs:
+      show: true
+    config:
+      column_types:
+        id: STRING
+        low: STRING
+        high: STRING
+        open: STRING
+        close: STRING
+        volume: STRING
+        dt: DATE
+      delimiter: ","
+    tests:
+      - unique:
+            column_name: "id || '-' || dt"
+    columns:
+      - name: "id"
+        description: "Symbol id for crypto currency such as BTC_USDT"
+        meta:
+          contains_pii: false
+        quote: false
+        tests:
+          - not_null
+      - name: "low"
+        description: "lowest price over the interval"
+        quote: false
+        tests:
+          - not_null
+
+  - name: SPDB__CRYPTO_CANDLES
+    description: "Source file for crypto candles from SPDB"
+    docs:
+      show: true
+    config:
+      column_types:
+        id: STRING
+        low: FLOAT64
+        high: FLOAT64
+        open: FLOAT64
+        close: FLOAT64
+        volume: FLOAT64
+        dt: DATE
+      delimiter: ","
+    tests:
+      - unique:
+            column_name: "id || '-' || dt"
+    columns:
+      - name: "id"
+        description: "Symbol id for crypto currency such as BTC_USDT"
+        meta:
+          contains_pii: false
+          contains_id: true
+        quote: false
+        tests:
+          - not_null

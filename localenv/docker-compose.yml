@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  dbt_local:
+    build:
+      dockerfile: Dockerfile
+    hostname: dbt_local
+    container_name: dbt_local
+    volumes:
+      - ./dbtprj:/home/dbtprj
+    networks:
+      shared-network:
+        ipv4_address: "172.30.200.1"
+    ports:
+      - '8999:8080'
+
+networks:
+  shared-network:
+    external: true
