@@ -16,7 +16,5 @@ order by 1
     {% else %}
         {{ exceptions.raise_compiler_error("Invalid `row_counts`. Got: " ~ row_counts) }}
     {% endif %}
-{% else %}
-    {% set row_counts = 0 %}
 {% endif %}
 

@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: TRVANALYT_RAW # arbitrary source name (must be unique in a DBT project)
+    database: travel-dwh-mart   # bigquery project-id
+    schema: TRVANALYT_RAW # bigquery dataset-name
+    tables:
+      - name: RESERVATION_D_BOOKINGS
+        tests:
+          - table_exists:
+              table_name: RESERVATION_D_BOOKINGS
+        columns:
+          - name: id
+            description: easy id
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: STRING
+              - unique
+              - not_null
+          - name: dt
+            description: created date
+            tests:
+              - dbt_expectations.expect_column_to_exist
+              - dbt_expectations.expect_column_values_to_be_of_type:
+                  column_type: DATE
+              - unique
+  - name: TRVL_RAW # arbitrary source name (must be unique in a DBT project)
+    database: travel-dwh-mart   # bigquery project-id
+    schema: TRVL_RAW # bigquery dataset-name
+    tables:
+      - name: RESERVATION_D_BOOKINGS

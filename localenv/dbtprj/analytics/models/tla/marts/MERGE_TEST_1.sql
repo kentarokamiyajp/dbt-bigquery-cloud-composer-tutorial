@@ -19,7 +19,7 @@
         'buytakerquantity',
         'tradecount'
     ],
-    incremental_predicates = ["DBT_INTERNAL_DEST.dt_create_utc >= DATE_SUB('2024-01-03', INTERVAL 1 DAY)"]
+    incremental_predicates = ["DBT_INTERNAL_DEST.dt_create_utc >= DATE_SUB('2024-01-02', INTERVAL 1 DAY)"]
     )
 }}
 
@@ -29,7 +29,7 @@
 select
  *
 from
-    {{ source('TLA__TRVANALYT_RAW', 'TLA__CRYPTO_CANDLES_MINUTE_3') }}
+    {{ source('TLA__TRVANALYT_RAW', 'TLA__CRYPTO_CANDLES_MINUTE_1') }}
 {% if is_incremental() %}
-where dt_create_utc >= DATE_SUB('2024-01-03', INTERVAL 1 DAY)
+    where dt_create_utc >= DATE_SUB('2024-01-02', INTERVAL 1 DAY)
 {% endif %}
