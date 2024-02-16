@@ -1,0 +1,27 @@
+version: 2
+
+seeds:
+  - name: F_RESERVATIONS_INFO
+    description: "CSV file for F_RESERVATIONS_INFO"
+    docs:
+      show: true
+    config:
+      column_types:
+        id: STRING
+        dt: DATE
+      delimiter: ","
+    tests:
+      - unique:
+          column_name: "id || '-' || dt"
+    columns:
+      - name: "id"
+        description: "reservation id"
+        meta:
+          contains_pii: false
+        quote: false
+        tests:
+          - not_null
+      - name: "dt"
+        quote: false
+        tests:
+          - not_null

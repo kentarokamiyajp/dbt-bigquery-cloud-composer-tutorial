@@ -1,3 +1,5 @@
+version: 2
+
 models:
   - name: CRYPTO_CANDLES
     config:
@@ -16,11 +18,12 @@ models:
           - type: not_null
         tests:
           - not_null
+        mode: "required"
       - name: low
         data_type: FLOAT64
       - name: high
         data_type: FLOAT64
-      - name: open
+      - name: open 
         data_type: FLOAT64
       - name: close
         data_type: FLOAT64
